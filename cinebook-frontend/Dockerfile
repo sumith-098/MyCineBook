@@ -2,6 +2,10 @@ FROM node:20-alpine AS build
 
 WORKDIR /app
 
+
+# Declare the build argument passed from GitHub Actions
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 # Copy dependency manifests first
 COPY package*.json ./
 
