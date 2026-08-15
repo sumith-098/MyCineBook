@@ -1,0 +1,43 @@
+server:
+  port: ${PAYMENT_SERVICE_PORT}
+
+spring:
+  config:
+    import: "optional:file:./.env[.properties],optional:file:../.env[.properties],optional:file:../../.env[.properties]"
+  application:
+    name: payment-service
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${PAYMENT_DB_NAME}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    issuer: cinebook-auth-service
+  # cors:
+  #   allowed-origins: ${CORS_ALLOWED_ORIGINS}
+  services:
+    booking-service-url: ${BOOKING_SERVICE_URL}
+  internal:
+    api-key: ${INTERNAL_API_KEY}
+  razorpay:
+    api-base-url: https://api.razorpay.com/v1
+    default-key-id: ${RAZORPAY_KEY_ID}
+    default-key-secret: ${RAZORPAY_KEY_SECRET}
+  encryption:
+    master-key: ${ENCRYPTION_MASTER_KEY}
+
+logging:
+  level:
+    com.cinebook.payment: INFO

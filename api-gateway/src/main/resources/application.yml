@@ -1,0 +1,73 @@
+server:
+  port: ${GATEWAY_PORT}
+
+spring:
+  config:
+    import: "optional:file:./.env[.properties],optional:file:../.env[.properties],optional:file:../../.env[.properties]"
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      # default-filters:
+      #   - DeduplicateResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
+        # CORS is handled ONCE here instead of separately in every service — the browser only
+        # ever talks to this gateway, so this is the only CORS config that actually matters for
+        # the React app. Each service keeps its own CORS too, only for convenience when hitting a
+        # service directly in local dev.
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: ${CORS_ALLOWED_ORIGINS}
+            allowedMethods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
+            allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
+
+      routes:
+        - id: auth-service
+          uri: ${AUTH_SERVICE_URL}
+          predicates:
+            - Path=/api/auth/**
+
+        - id: catalog-service
+          uri: ${CATALOG_SERVICE_URL}
+          predicates:
+            - Path=/api/catalog/**
+
+        - id: booking-service
+          uri: ${BOOKING_SERVICE_URL}
+          predicates:
+            - Path=/api/bookings/**
+
+        - id: payment-service
+          uri: ${PAYMENT_SERVICE_URL}
+          predicates:
+            - Path=/api/payments/**
+
+        - id: admin-service
+          uri: ${ADMIN_SERVICE_URL}
+          predicates:
+            - Path=/api/admin/**
+
+      # notification-service has NO route here at all — it is service-to-service only
+      # (booking-service calls it directly) and must never be reachable through the gateway.
+
+      httpclient:
+        connect-timeout: 5000
+        response-timeout: 15s
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}   # must match every backend service exactly
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+logging:
+  level:
+    com.cinebook.gateway: INFO
+    org.springframework.cloud.gateway: INFO

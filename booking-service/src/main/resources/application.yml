@@ -1,0 +1,47 @@
+server:
+  port: ${BOOKING_SERVICE_PORT}
+
+spring:
+  config:
+    import: "optional:file:./.env[.properties],optional:file:../.env[.properties],optional:file:../../.env[.properties]"
+  application:
+    name: booking-service
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${BOOKING_DB_NAME}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      # seat-lock inserts are short but happen under contention on hot showtimes — keep the pool
+      # from starving under a ticket-rush burst
+      maximum-pool-size: ${DB_POOL_SIZE}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    issuer: cinebook-auth-service
+  # cors:
+  #   allowed-origins: ${CORS_ALLOWED_ORIGINS}
+  services:
+    catalog-service-url: ${CATALOG_SERVICE_URL}
+    notification-service-url: ${NOTIFICATION_SERVICE_URL}
+  cancellation:
+    min-hours-before-showtime: 2
+  # Shared secret for service-to-service calls (e.g. catalog-service checking active bookings
+  # before a screen-layout edit). NOT the same as JWT_SECRET — this is for machine-to-machine
+  # calls that don't carry a user's JWT at all.
+  internal:
+    api-key: ${INTERNAL_API_KEY}
+
+logging:
+  level:
+    com.cinebook.booking: INFO

@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+/* ── CineBook design tokens ───────────────────────────────────────────
+   Palette: a warm, violet-tinted near-black (not flat #000) evoking a
+   dark screening room, lit by two cinema-specific accents — marquee gold
+   (bulb signage) and velvet red (curtain) — rather than one arbitrary
+   bright accent color.
+   Type: Fraunces (dramatic optical-size serif — old poster/marquee
+   energy) for display, Inter for UI, JetBrains Mono for anything that
+   reads like it was printed on a ticket stub (refs, seat codes, prices).
+   ────────────────────────────────────────────────────────────────── */
+@theme {
+  --color-void: #0b0a10;
+  --color-surface: #17131f;
+  --color-surface-2: #211c2e;
+  --color-hairline: #2e2840;
+
+  --color-marquee: #f2b705;
+  --color-marquee-soft: #f7d046;
+  --color-velvet: #a81f3d;
+  --color-velvet-deep: #6e1329;
+
+  --color-ivory: #f5f1f5;
+  --color-dim: #9b93ac;
+  --color-faint: #635c76;
+
+  --color-seat-open: #2e9e6c;
+  --color-seat-booked: #3a3448;
+
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --shadow-glow-gold: 0 0 40px -8px rgba(242, 183, 5, 0.35);
+  --shadow-glow-velvet: 0 0 40px -8px rgba(168, 31, 61, 0.35);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-void);
+  color: var(--color-ivory);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Visible keyboard focus everywhere — never suppressed */
+:focus-visible {
+  outline: 2px solid var(--color-marquee);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--color-marquee);
+  color: var(--color-void);
+}
+
+/* Respect reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Thin gold scrollbar on the horizontal marquee rows */
+.marquee-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+.marquee-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.marquee-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-hairline);
+  border-radius: 999px;
+}
+
+/* Sprocket-hole divider — literal film-strip perforation, used once,
+   directly under the hero, as a structural device grounded in the
+   subject rather than a decorative gradient rule. */
+.sprocket-divider {
+  display: flex;
+  gap: 18px;
+  justify-content: center;
+  padding: 10px 0;
+  opacity: 0.5;
+}
+.sprocket-divider span {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-hairline);
+  flex-shrink: 0;
+}
+
+/* ── Ticket stub — the signature element ──────────────────────────────
+   A physically-accurate torn cinema ticket: perforated dashed seam with
+   two punched notch circles (rendered as real elements colored to match
+   the page background behind them — see TicketStub.jsx), rotated
+   "ADMIT ONE" on the stub half. Reused for the booking summary,
+   confirmation screen, and My Bookings list. */
+.ticket-stub {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-hairline);
+  border-radius: 16px;
+  overflow: visible;
+}
+.ticket-stub__seam {
+  position: relative;
+  border-left: 2px dashed var(--color-hairline);
+}
+.ticket-stub__notch {
+  position: absolute;
+  left: -9px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--color-void);
+}
+.ticket-stub__admit {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  letter-spacing: 0.28em;
+}

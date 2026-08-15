@@ -1,0 +1,186 @@
+version: '3.8'
+
+services:
+  # ---------------------------------------------------
+  # 1. Database (MySQL 8.0)
+  # ---------------------------------------------------
+  mysql-db:
+    image: mysql:8.0
+    container_name: cinebook-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${DB_PORT}:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---------------------------------------------------
+  # 2. API Gateway (Frontend entry point)
+  # ---------------------------------------------------
+  api-gateway:
+    build: ./api-gateway
+    container_name: cinebook-api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
+      - CATALOG_SERVICE_URL=${CATALOG_SERVICE_URL}
+      - BOOKING_SERVICE_URL=${BOOKING_SERVICE_URL}
+      - PAYMENT_SERVICE_URL=${PAYMENT_SERVICE_URL}
+      - ADMIN_SERVICE_URL=${ADMIN_SERVICE_URL}
+    depends_on:
+      - mysql-db
+
+  # ---------------------------------------------------
+  # 3. Auth Service (Port 8081)
+  # ---------------------------------------------------
+  auth-service:
+    build: ./auth-service
+    container_name: cinebook-auth-service
+    ports:
+      - "${AUTH_SERVICE_PORT}:8081"
+    environment:
+      - DB_HOST=mysql-db
+      - DB_PORT=3306
+      - DB_NAME=${AUTH_DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_ACCESS_EXPIRY_MS=${JWT_ACCESS_EXPIRY_MS}
+      - JWT_REFRESH_EXPIRY_MS=${JWT_REFRESH_EXPIRY_MS}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_DEV_MODE=${MAIL_DEV_MODE}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+
+  # ---------------------------------------------------
+  # 4. Catalog Service (Port 8082)
+  # ---------------------------------------------------
+  catalog-service:
+    build: ./catalog-service
+    container_name: cinebook-catalog-service
+    ports:
+      - "${CATALOG_SERVICE_PORT}:8082"
+    environment:
+      - DB_HOST=mysql-db
+      - DB_PORT=3306
+      - DB_NAME=${CATALOG_DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - UPLOADS_DIR=${UPLOADS_DIR:- /uploads}
+      - PUBLIC_BASE_URL=${PUBLIC_BASE_URL}
+      - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING}
+      - AZURE_STORAGE_CONTAINER_NAME=${AZURE_STORAGE_CONTAINER_NAME}
+      - AZURE_CDN_DOMAIN=${AZURE_CDN_DOMAIN}
+      - BOOKING_SERVICE_URL=${BOOKING_SERVICE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+
+  # ---------------------------------------------------
+  # 5. Booking Service (Port 8083)
+  # ---------------------------------------------------
+  booking-service:
+    build: ./booking-service
+    container_name: cinebook-booking-service
+    ports:
+      - "${BOOKING_SERVICE_PORT}:8083"
+    environment:
+      - DB_HOST=mysql-db
+      - DB_PORT=3306
+      - DB_NAME=${BOOKING_DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_POOL_SIZE=${DB_POOL_SIZE}
+      - CATALOG_SERVICE_URL=${CATALOG_SERVICE_URL}
+      - NOTIFICATION_SERVICE_URL=${NOTIFICATION_SERVICE_URL}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+
+  # ---------------------------------------------------
+  # 6. Payment Service (Port 8084)
+  # ---------------------------------------------------
+  payment-service:
+    build: ./payment-service
+    container_name: cinebook-payment-service
+    ports:
+      - "${PAYMENT_SERVICE_PORT}:8084"
+    environment:
+      - DB_HOST=mysql-db
+      - DB_PORT=3306
+      - DB_NAME=${PAYMENT_DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID}
+      - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET}
+      - ENCRYPTION_MASTER_KEY=${ENCRYPTION_MASTER_KEY}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+
+  # ---------------------------------------------------
+  # 7. Notification Service (Port 8085)
+  # ---------------------------------------------------
+  notification-service:
+    build: ./notification-service
+    container_name: cinebook-notification-service
+    ports:
+      - "${NOTIFICATION_SERVICE_PORT}:8085"
+    environment:
+      - NOTIFICATION_SERVICE_PORT=${NOTIFICATION_SERVICE_PORT}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - INTERNAL_API_KEY=${INTERNAL_API_KEY}
+
+  # ---------------------------------------------------
+  # 8. Admin Service (Port 8086)
+  # ---------------------------------------------------
+  admin-service:
+    build: ./admin-service
+    container_name: cinebook-admin-service
+    ports:
+      - "${ADMIN_SERVICE_PORT}:8086"
+    environment:
+      - DB_HOST=mysql-db
+      - DB_PORT=3306
+      - DB_NAME=${ADMIN_DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
+      - CATALOG_SERVICE_URL=${CATALOG_SERVICE_URL}
+      - BOOKING_SERVICE_URL=${BOOKING_SERVICE_URL}
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+
+  # ---------------------------------------------------
+  # 9. React Frontend
+  # ---------------------------------------------------
+  frontend:
+    build: ./cinebook-frontend
+    container_name: cinebook-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - api-gateway
+
+volumes:
+  db_data:

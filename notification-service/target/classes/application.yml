@@ -1,0 +1,31 @@
+server:
+  port: ${NOTIFICATION_SERVICE_PORT}
+
+spring:
+  config:
+    import: "optional:file:./.env[.properties],optional:file:../.env[.properties],optional:file:../../.env[.properties]"
+  application:
+    name: notification-service
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+app:
+  mail:
+    from-name: CineBook
+    from-address: ${MAIL_USERNAME}
+  internal:
+    api-key: ${INTERNAL_API_KEY}
+
+logging:
+  level:
+    com.cinebook.notification: INFO
