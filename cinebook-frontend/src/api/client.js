@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api-gateway.lemondesert-03dc2ff4.eastasia.azurecontainerapps.io'
 
 // Tokens live in memory + localStorage (localStorage so a refresh doesn't log the user out;
 // in-memory copy avoids re-reading storage on every single request).
