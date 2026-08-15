@@ -50,7 +50,7 @@ services:
     environment:
       - DB_HOST=mysql-db
       - DB_PORT=3306
-      - DB_NAME=${AUTH_DB_NAME}
+      - AUTH_DB_NAME=${AUTH_DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - JWT_ACCESS_EXPIRY_MS=${JWT_ACCESS_EXPIRY_MS}
@@ -74,7 +74,7 @@ services:
     environment:
       - DB_HOST=mysql-db
       - DB_PORT=3306
-      - DB_NAME=${CATALOG_DB_NAME}
+      - CATALOG_DB_NAME=${CATALOG_DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - UPLOADS_DIR=${UPLOADS_DIR:- /uploads}
@@ -100,7 +100,7 @@ services:
     environment:
       - DB_HOST=mysql-db
       - DB_PORT=3306
-      - DB_NAME=${BOOKING_DB_NAME}
+      - BOOKING_DB_NAME=${BOOKING_DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_POOL_SIZE=${DB_POOL_SIZE}
@@ -123,7 +123,7 @@ services:
     environment:
       - DB_HOST=mysql-db
       - DB_PORT=3306
-      - DB_NAME=${PAYMENT_DB_NAME}
+      - PAYMENT_DB_NAME=${PAYMENT_DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID}
@@ -160,7 +160,7 @@ services:
     environment:
       - DB_HOST=mysql-db
       - DB_PORT=3306
-      - DB_NAME=${ADMIN_DB_NAME}
+      - ADMIN_DB_NAME=${ADMIN_DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
