@@ -47,6 +47,24 @@ public class OwnerAuthController {
         AuthResponse tokens = ownerAuthService.login(req);
         return ResponseEntity.ok(ApiResponse.ok("Welcome, " + tokens.getName() + "!", tokens));
     }
+           @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<Map<String, String>>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest req) {
+        String devOtp = ownerAuthService.forgotPassword(req.getEmail());
+        var data = devOtp != null ? Map.of("devOtp", devOtp) : Map.<String, String>of();
+        return ResponseEntity.ok(ApiResponse.ok("If this email is registered, you will receive an OTP.", data));
+    }
+
+        @PostMapping("/verify-reset-otp")
+    public ResponseEntity<ApiResponse<Map<String, String>>> verifyResetOtp(@Valid @RequestBody VerifyOtpRequest req) {
+        String resetToken = ownerAuthService.verifyResetOtp(req);
+        return ResponseEntity.ok(ApiResponse.ok("OTP verified.", Map.of("resetToken", resetToken)));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest req) {
+        ownerAuthService.resetPassword(req);
+        return ResponseEntity.ok(ApiResponse.ok("Password updated! Please log in."));
+    }
 
     /** Sanity endpoint other services / the frontend can call to confirm the current JWT is a valid, logged-in owner. */
     @GetMapping("/me")

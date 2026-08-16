@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,8 +43,14 @@ public class AdminAuthController {
         return ResponseEntity.ok(ApiResponse.ok("Welcome, Admin!", tokens));
     }
 
-    // Owner data is owned by auth-service, so approval lives here — admin-service (built later)
-    // calls this endpoint over HTTP using the admin's JWT rather than touching the table directly.
+    @PutMapping("/change-password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(Authentication auth,
+                                                              @Valid @RequestBody ChangePasswordRequest req) {
+        Long adminId = (Long) auth.getPrincipal();
+        adminAuthService.changePassword(adminId, req);
+        return ResponseEntity.ok(ApiResponse.ok("Password updated."));
+    }
+
     @GetMapping("/owners/pending")
     public ResponseEntity<ApiResponse<List<TheaterOwner>>> pendingOwners() {
         return ResponseEntity.ok(ApiResponse.ok("OK", ownerAuthService.listPending()));

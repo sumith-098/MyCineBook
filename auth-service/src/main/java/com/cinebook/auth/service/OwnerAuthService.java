@@ -25,7 +25,7 @@ public class OwnerAuthService {
 
     // @Value("${app.cors.allowed-origins}")
     // private String frontendOrigin; // first entry used to build the "log in" link in the approval email
-    private String frontendOrigin = "https://cinebook-frontend.lemondesert-03dc2ff4.eastasia.azurecontainerapps.io/";
+    private String frontendOrigin = "https://cinebook-frontend.lemondesert-03dc2ff4.eastasia.azurecontainerapps.io";
     public OwnerAuthService(TheaterOwnerRepository ownerRepository, OtpService otpService,
                              EmailService emailService, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
         this.ownerRepository = ownerRepository;
@@ -82,7 +82,39 @@ public class OwnerAuthService {
         String refresh = jwtUtil.generateRefreshToken(owner.getOwnerId(), owner.getEmail(), owner.getName(), "OWNER");
         return new AuthResponse(access, refresh, owner.getOwnerId(), owner.getName(), owner.getEmail(), "OWNER");
     }
+      
+    public String forgotPassword(String emailRaw) {
+        String email = emailRaw.trim().toLowerCase();
+        TheaterOwner owner = ownerRepository.findByEmail(email).orElse(null);
+        if (owner == null) return null;
 
+        String otp = otpService.issueOtp(email, "owner_reset", "");
+        boolean sent = emailService.sendOtpEmail(email, otp, owner.getName());
+        if (!sent && !emailService.isDevMode()) {
+            throw new ApiException("Could not send OTP email. Please try again later.", HttpStatus.SERVICE_UNAVAILABLE);
+        }
+        return emailService.isDevMode() ? otp : null;
+    }
+
+    public String verifyResetOtp(VerifyOtpRequest req) {
+        String email = req.getEmail().trim().toLowerCase();
+        otpService.verifyAndConsume(email, "owner_reset", req.getOtp().trim());
+        return jwtUtil.generatePasswordResetToken(email);
+    }
+
+    @Transactional
+    public void resetPassword(ResetPasswordRequest req) {
+        String email = req.getEmail().trim().toLowerCase();
+        if (!req.getPassword().equals(req.getConfirmPassword())) {
+            throw new ApiException("Passwords do not match.", HttpStatus.BAD_REQUEST);
+        }
+        jwtUtil.validatePasswordResetToken(req.getResetToken(), email);
+
+        TheaterOwner owner = ownerRepository.findByEmail(email)
+                .orElseThrow(() -> new ApiException("Account not found.", HttpStatus.NOT_FOUND));
+        owner.setPasswordHash(passwordEncoder.encode(req.getPassword()));
+        ownerRepository.save(owner);
+    }
     // ── used by AdminAuthController (admin-only endpoints) ──────────────────
     public List<TheaterOwner> listPending() {
         return ownerRepository.findByIsActiveFalseOrderByCreatedAtDesc();
@@ -98,7 +130,7 @@ public class OwnerAuthService {
                 .orElseThrow(() -> new ApiException("Owner not found.", HttpStatus.NOT_FOUND));
         owner.setIsActive(true);
         ownerRepository.save(owner);
-        String loginUrl = frontendOrigin.split(",")[0].trim() + "/owner/login";
-        emailService.sendOwnerApprovedEmail(owner.getEmail(), owner.getName(), loginUrl);
+        //String loginUrl = frontendOrigin.split(",")[0].trim() + "/owner/login";
+        emailService.sendOwnerApprovedEmail(owner.getEmail(), owner.getName(), frontendOrigin);
     }
 }

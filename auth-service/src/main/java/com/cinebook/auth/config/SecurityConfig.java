@@ -54,6 +54,11 @@ public class SecurityConfig {
                     "/api/auth/owner/verify-otp",
                     "/api/auth/owner/login",
                     "/api/auth/admin/login",
+                    "api/auth/admin/change-password",
+                    "/api/auth/owner/forgot-password",
+                    "/api/auth/owner/verify-reset-otp",
+                    "/api/auth/owner/reset-password",
+        
                     "/api/auth/refresh",
                     "/actuator/health"
                 ).permitAll()
