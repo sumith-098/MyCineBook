@@ -25,7 +25,7 @@ public class OwnerAuthService {
 
     // @Value("${app.cors.allowed-origins}")
     // private String frontendOrigin; // first entry used to build the "log in" link in the approval email
-    private String frontendOrigin = "http://localhost:5173";
+    private String frontendOrigin = "https://cinebook-frontend.lemondesert-03dc2ff4.eastasia.azurecontainerapps.io/";
     public OwnerAuthService(TheaterOwnerRepository ownerRepository, OtpService otpService,
                              EmailService emailService, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
         this.ownerRepository = ownerRepository;
