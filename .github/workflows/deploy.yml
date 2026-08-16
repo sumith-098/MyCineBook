@@ -68,8 +68,11 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # FIX: har service ka apna alag cache scope — pehle sab 8 services
+          # (jo parallel build hoti hain) ek hi shared cache use kar rahi thi,
+          # isliye frontend kabhi-kabhi galat/purana cached layer utha leta tha.
+          cache-from: type=gha,scope=${{ matrix.service.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service.name }}
           build-args: |
             VITE_API_BASE_URL=https://api-gateway.lemondesert-03dc2ff4.eastasia.azurecontainerapps.io
 
@@ -77,6 +80,17 @@ jobs:
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # FIX: Container App ko explicitly GHCR pull karne ki permission do —
+      # yehi step missing tha, isliye api-gateway "ImagePullBackOff" de raha tha.
+      - name: Configure Container App Registry Credentials
+        run: |
+          az containerapp registry set \
+            --name ${{ matrix.service.name }} \
+            --resource-group student-microservices-rg \
+            --server ghcr.io \
+            --username ${{ github.actor }} \
+            --password ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy to Azure Container Apps
         uses: azure/container-apps-deploy-action@v1
