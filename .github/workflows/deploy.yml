@@ -59,7 +59,7 @@ jobs:
           images: ghcr.io/${{ steps.repository_owner.outputs.owner }}/${{ matrix.service.name }}
           tags: |
             type=raw,value=latest
-            type=sha,format=short
+            type=raw,value=${{ github.sha }}
 
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v6
@@ -97,7 +97,7 @@ jobs:
         with:
           containerAppName: ${{ matrix.service.name }}
           resourceGroup: student-microservices-rg
-          imageToDeploy: ghcr.io/${{ steps.repository_owner.outputs.owner }}/${{ matrix.service.name }}:latest
+          imageToDeploy: ghcr.io/${{ steps.repository_owner.outputs.owner }}/${{ matrix.service.name }}:${{ github.sha }}
           registryUrl: ghcr.io
           registryUsername: ${{ github.actor }}
           registryPassword: ${{ secrets.GITHUB_TOKEN }}
