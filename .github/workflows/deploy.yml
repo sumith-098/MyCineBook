@@ -83,6 +83,7 @@ jobs:
 
       # FIX: Container App ko explicitly GHCR pull karne ki permission do —
       # yehi step missing tha, isliye api-gateway "ImagePullBackOff" de raha tha.
+     # CHANGED: Replaced GITHUB_TOKEN with GHCR_PAT so Azure gets a permanent key
       - name: Configure Container App Registry Credentials
         run: |
           az containerapp registry set \
@@ -90,8 +91,9 @@ jobs:
             --resource-group student-microservices-rg \
             --server ghcr.io \
             --username ${{ github.actor }} \
-            --password ${{ secrets.GITHUB_TOKEN }}
+            --password ${{ secrets.GHCR_PAT }}
 
+      # CHANGED: Replaced GITHUB_TOKEN with GHCR_PAT so the deploy action completes successfully
       - name: Deploy to Azure Container Apps
         uses: azure/container-apps-deploy-action@v1
         with:
@@ -100,4 +102,4 @@ jobs:
           imageToDeploy: ghcr.io/${{ steps.repository_owner.outputs.owner }}/${{ matrix.service.name }}:${{ github.sha }}
           registryUrl: ghcr.io
           registryUsername: ${{ github.actor }}
-          registryPassword: ${{ secrets.GITHUB_TOKEN }}
+          registryPassword: ${{ secrets.GHCR_PAT }}
