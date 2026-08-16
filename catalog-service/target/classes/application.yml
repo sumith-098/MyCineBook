@@ -37,10 +37,7 @@ app:
     booking-service-url: ${BOOKING_SERVICE_URL}
   internal:
     api-key: ${INTERNAL_API_KEY}
-  uploads:
-    dir: ${UPLOADS_DIR}
-    public-base-url: ${PUBLIC_BASE_URL}
-    max-file-size-mb: 10
+  
 
 logging:
   level:
