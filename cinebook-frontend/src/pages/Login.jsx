@@ -28,7 +28,6 @@ export default function Login() {
       if (tab === 'CUSTOMER') await loginCustomer(email, password)
       else if (tab === 'OWNER') await loginOwner(email, password)
       else await loginAdmin(email, password)
-  
 
       navigate(from || (tab === 'OWNER' ? '/owner' : tab === 'ADMIN' ? '/admin' : '/'), { replace: true })
     } catch (e) {
@@ -59,6 +58,17 @@ export default function Login() {
       <form onSubmit={submit} className="flex flex-col gap-4">
         <Field label="Email" type="email" value={email} onChange={setEmail} required />
         <Field label="Password" type="password" value={password} onChange={setPassword} required />
+
+        {/* Admin has no self-serve forgot-password flow — only Change Password inside the dashboard. */}
+        {tab !== 'ADMIN' && (
+          <Link
+            to="/forgot-password"
+            state={{ role: tab }}
+            className="text-xs text-dim hover:text-ivory self-end -mt-2"
+          >
+            Forgot password?
+          </Link>
+        )}
 
         {error && <p className="text-velvet text-sm">{error}</p>}
 

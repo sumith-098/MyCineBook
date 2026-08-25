@@ -4,11 +4,13 @@ import DashboardTabs from '../../components/DashboardTabs'
 import AdminOverview from './AdminOverview'
 import AdminApprovals from './AdminApprovals'
 import AdminSettlements from './AdminSettlements'
+import AdminChangePassword from './AdminChangePassword'
 
 const TABS = [
   { key: 'overview', label: 'Overview' },
   { key: 'approvals', label: 'Owner Approvals' },
   { key: 'settlements', label: 'Settlements' },
+  { key: 'password', label: 'Change Password' },
 ]
 
 export default function AdminDashboard() {
@@ -25,6 +27,7 @@ export default function AdminDashboard() {
       {tab === 'overview' && <AdminOverview />}
       {tab === 'approvals' && <AdminApprovals />}
       {tab === 'settlements' && <AdminSettlements />}
+      {tab === 'password' && <AdminChangePassword />}
     </div>
   )
 }

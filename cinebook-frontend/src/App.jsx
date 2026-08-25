@@ -10,6 +10,7 @@ import Theaters from './pages/Theaters'
 import SeatPicker from './pages/SeatPicker'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import ForgotPassword from './pages/ForgotPassword'
 import MyBookings from './pages/MyBookings'
 import BookingConfirmation from './pages/BookingConfirmation'
 import OwnerDashboard from './pages/owner/OwnerDashboard'
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="/theaters" element={<Theaters />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
 
           <Route
             path="/book/:showtimeId"

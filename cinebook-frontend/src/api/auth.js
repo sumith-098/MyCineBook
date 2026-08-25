@@ -14,7 +14,9 @@ export const authApi = {
   registerOwner: (payload) => call(api.post('/api/auth/owner/register', payload)),
   verifyOwnerOtp: (payload) => call(api.post('/api/auth/owner/verify-otp', payload)),
   loginOwner: (payload) => call(api.post('/api/auth/owner/login', payload)),
-
+  forgotPasswordOwner: (email) => call(api.post('/api/auth/owner/forgot-password', { email })),
+  verifyResetOtpOwner: (payload) => call(api.post('/api/auth/owner/verify-reset-otp', payload)),
+  resetPasswordOwner: (payload) => call(api.post('/api/auth/owner/reset-password', payload)),
   // admin
   loginAdmin: (payload) => call(api.post('/api/auth/admin/login', payload)),
 }

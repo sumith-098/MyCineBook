@@ -4,6 +4,7 @@ export const adminApi = {
   // owned by auth-service, called through the gateway
   pendingOwners: () => call(api.get('/api/auth/admin/owners/pending')),
   approveOwner: (ownerId) => call(api.post(`/api/auth/admin/owners/${ownerId}/approve`)),
+  changePassword: (payload) => call(api.put('/api/auth/admin/change-password', payload)),
 
   // owned by admin-service
   dashboard: () => call(api.get('/api/admin/dashboard')),
